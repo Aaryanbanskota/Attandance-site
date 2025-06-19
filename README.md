@@ -110,8 +110,8 @@ Built with ❤️ by **Aaryan Banskota**
 ### 🌐 Connect with Me
 - 📸 [Instagram](https://www.instagram.com/its.aaryan_01/)  
 - 👍 [Facebook](https://www.facebook.com/aaryan.baskota.2025)  
-- 💼 [LinkedIn](https://www.linkedin.com/in/your-profile) *(replace with actual link)*  
-- 📧 **Email**: your.email@example.com *(replace with your real email)*  
+- 💼 [LinkedIn](https://www.linkedin.com/feed/)  
+- 📧 **Email**: ugod942@gmail.com  
 
 ---
 
