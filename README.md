@@ -2,7 +2,7 @@
 ✨ A Modern Employee Management Solution ✨
 
 🔗 **LIVE DEMO**  
-[Click here to try it out!](https://aaryanbanskota.github.io/gomendramart-attendance-system)
+[Click here to try it out!](https://aaryanbanskota.github.io/attandance-site/)
 
 ---
 
