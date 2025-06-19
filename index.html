@@ -1,0 +1,2247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GomendraMart Attendance System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #00b894;
+      --primary-dark: #019875;
+      --secondary: #0984e3;
+      --dark: #2d3436;
+      --light: #f5f6fa;
+      --danger: #d63031;
+      --warning: #fdcb6e;
+      --success: #00b894;
+      --info: #0984e3;
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --text-light: #fff;
+      --text-dark: #2d3436;
+    }
+
+    /* Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body, html {
+      height: 100%;
+      color: var(--text-dark);
+    }
+
+    /* Background Animation */
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(-45deg, #1a2980, #26d0ce, #f7971e, #ffd200);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      z-index: -1;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Login Page */
+    #login-container {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-box {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      color: var(--text-light);
+      transition: transform 0.3s ease;
+    }
+
+    .login-box:hover {
+      transform: translateY(-5px);
+    }
+
+    .login-box h2 {
+      margin-bottom: 25px;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .input-group i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 12px 12px 12px 40px;
+      margin-bottom: 5px;
+      border: none;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      color: var(--text-light);
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .login-box input:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 0 2px var(--primary);
+    }
+
+    .login-box input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: var(--dark);
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .error-msg {
+      background-color: rgba(214, 48, 49, 0.2);
+      color: var(--text-light);
+      border-left: 4px solid var(--danger);
+    }
+
+    .success-msg {
+      background-color: rgba(0, 184, 148, 0.2);
+      color: var(--text-light);
+      border-left: 4px solid var(--success);
+    }
+
+    /* Dashboard Layout */
+    #dashboard {
+      display: none;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      background: var(--dark);
+      color: white;
+      width: 250px;
+      min-width: 250px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 10;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header h3 {
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      margin-bottom: 5px;
+    }
+
+    .sidebar-header p {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .sidebar-menu {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 10px 0;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+    }
+
+    .menu-item:hover, .menu-item.active {
+      background: rgba(0, 0, 0, 0.2);
+      color: white;
+      border-left: 4px solid var(--primary);
+    }
+
+    .menu-item i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 10px;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: rgba(214, 48, 49, 0.2);
+      color: white;
+    }
+
+    .logout-btn i {
+      margin-right: 8px;
+    }
+
+    /* Main Content */
+    #main-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #topbar {
+      background: white;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      z-index: 5;
+    }
+
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--dark);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    #content {
+      flex-grow: 1;
+      background: var(--light);
+      padding: 25px;
+      overflow-y: auto;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .page-header h2 {
+      font-size: 24px;
+      color: var(--dark);
+    }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* Leave Form */
+    .form-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .form-group {
+      flex: 1;
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(0, 184, 148, 0.2);
+    }
+
+    textarea.form-control {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    /* Leave List */
+    .leave-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      padding: 15px;
+      margin-bottom: 15px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .leave-card.pending {
+      border-left-color: var(--warning);
+    }
+
+    .leave-card.approved {
+      border-left-color: var(--success);
+    }
+
+    .leave-card.rejected {
+      border-left-color: var(--danger);
+    }
+
+    .leave-card h3 {
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .leave-meta {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .leave-meta div {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .leave-meta i {
+      font-size: 14px;
+    }
+
+    .leave-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .btn-sm {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+
+    /* Status Badges */
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-pending {
+      background-color: #fef5e6;
+      color: #f39c12;
+    }
+
+    .badge-approved {
+      background-color: #e8f8f0;
+      color: #00b894;
+    }
+
+    .badge-rejected {
+      background-color: #fdecea;
+      color: #d63031;
+    }
+
+    /* Attendance Check-in/out */
+    .attendance-status {
+      text-align: center;
+      padding: 30px;
+    }
+
+    .attendance-status h2 {
+      margin-bottom: 20px;
+    }
+
+    .attendance-btn {
+      font-size: 18px;
+      padding: 15px 30px;
+      margin: 10px;
+      min-width: 200px;
+    }
+
+    .attendance-timer {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+      #sidebar {
+        position: fixed;
+        left: -250px;
+        top: 0;
+        bottom: 0;
+        z-index: 100;
+      }
+
+      #sidebar.active {
+        left: 0;
+      }
+
+      .hamburger {
+        display: block;
+      }
+
+      #main-content {
+        margin-left: 0;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .login-box {
+        padding: 30px 20px;
+      }
+
+      #content {
+        padding: 15px;
+      }
+      
+      .attendance-btn {
+        width: 100%;
+        margin: 5px 0;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    /* Utility Classes */
+    .d-flex {
+      display: flex;
+    }
+
+    .justify-between {
+      justify-content: space-between;
+    }
+
+    .align-center {
+      align-items: center;
+    }
+
+    .w-100 {
+      width: 100%;
+    }
+
+    .mt-3 {
+      margin-top: 15px;
+    }
+
+    .mb-3 {
+      margin-bottom: 15px;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+    
+    /* New styles for notifications */
+    .notification-bell {
+      position: relative;
+      margin-right: 15px;
+      cursor: pointer;
+    }
+    
+    .notification-count {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--danger);
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .notifications-dropdown {
+      position: absolute;
+      top: 50px;
+      right: 20px;
+      width: 300px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 100;
+      display: none;
+    }
+    
+    .notification-item {
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .notification-item:hover {
+      background: #f9f9f9;
+    }
+    
+    .notification-item.unread {
+      background: #f0f8ff;
+    }
+    
+    /* Dark mode toggle */
+    .dark-mode-toggle {
+      display: flex;
+      align-items: center;
+      margin-right: 15px;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+      margin: 0 10px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .toggle-slider {
+      background-color: var(--primary);
+    }
+    
+    input:checked + .toggle-slider:before {
+      transform: translateX(26px);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-animation"></div>
+
+  <!-- Login Page -->
+  <div id="login-container">
+    <div class="login-box">
+      <h2>Employee Login</h2>
+      <form id="login-form">
+        <div class="input-group">
+          <i class="fas fa-envelope"></i>
+          <input type="email" id="email" placeholder="Email" required autocomplete="off" />
+        </div>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="password" placeholder="Password" required autocomplete="off" />
+        </div>
+        <div class="input-group" style="text-align: left;">
+          <input type="checkbox" id="remember-me" style="width: auto; display: inline-block; margin-right: 8px;">
+          <label for="remember-me" style="display: inline-block; color: var(--text-light);">Remember me</label>
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </button>
+        <div id="login-msg" class="message error-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard">
+    <!-- Sidebar -->
+    <div id="sidebar">
+      <div class="sidebar-header">
+        <h3>GomendraMart</h3>
+        <p>Attendance System</p>
+      </div>
+      <div class="sidebar-menu" id="sidebar-menu">
+        <!-- Menu items will be injected here -->
+      </div>
+      <div class="sidebar-footer">
+        <button class="logout-btn" id="logout-btn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+      <!-- Topbar -->
+      <div id="topbar">
+        <button class="hamburger" id="sidebar-toggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div style="display: flex; align-items: center;">
+          <div class="dark-mode-toggle">
+            <i class="fas fa-moon"></i>
+            <label class="toggle-switch">
+              <input type="checkbox" id="dark-mode-toggle">
+              <span class="toggle-slider"></span>
+            </label>
+            <i class="fas fa-sun"></i>
+          </div>
+          <div class="notification-bell" id="notification-bell">
+            <i class="fas fa-bell"></i>
+            <span class="notification-count" id="notification-count">0</span>
+            <div class="notifications-dropdown" id="notifications-dropdown">
+              <!-- Notifications will be inserted here -->
+            </div>
+          </div>
+          <div class="user-info" id="user-info">
+            <!-- User info will be injected here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div id="content">
+        <!-- Content will be injected here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Enhanced User Data with hashed passwords (simulated)
+    const users = [
+      { 
+        id: 1,
+        email: "akash@gomendramart.com", 
+        password: "hashed_1234567890", // In real app, use proper hashing
+        name: "Akash Sharma",
+        role: "employee",
+        department: "Cashier",
+        avatar: "AS",
+        schedule: "Morning (8AM-5PM)",
+        notifications: [
+          {
+            id: 1,
+            title: "Leave Approved",
+            message: "Your leave request for June 15-16 has been approved",
+            timestamp: "2023-06-12T10:30:00",
+            read: false
+          },
+          {
+            id: 2,
+            title: "New Schedule",
+            message: "Your schedule for next week has been updated",
+            timestamp: "2023-06-10T14:15:00",
+            read: true
+          }
+        ]
+      },
+      { 
+        id: 2,
+        email: "aaryan@manager.com", 
+        password: "hashed_1234567890", 
+        name: "Aaryan Patel",
+        role: "manager",
+        department: "Management",
+        avatar: "AP",
+        schedule: "Flexible (9AM-6PM)",
+        notifications: [
+          {
+            id: 1,
+            title: "New Leave Request",
+            message: "Akash Sharma has submitted a new leave request",
+            timestamp: "2023-06-14T09:20:00",
+            read: false
+          }
+        ]
+      },
+      { 
+        id: 3,
+        email: "priya@hr.com", 
+        password: "hashed_1234567890", 
+        name: "Priya Gupta",
+        role: "hr",
+        department: "Human Resources",
+        avatar: "PG",
+        schedule: "Standard (9AM-5PM)",
+        notifications: []
+      }
+    ];
+
+    // Sample leave requests data
+    let leaveRequests = [
+      { 
+        id: 1, 
+        employeeId: 1,
+        email: "akash@gomendramart.com", 
+        name: "Akash Sharma", 
+        reason: "Medical appointment", 
+        status: "pending",
+        startDate: "2023-06-15",
+        endDate: "2023-06-16",
+        submittedAt: "2023-06-10T09:30:00",
+        notes: "Doctor's appointment for annual checkup"
+      },
+      { 
+        id: 2, 
+        employeeId: 1,
+        email: "akash@gomendramart.com", 
+        name: "Akash Sharma", 
+        reason: "Family vacation", 
+        status: "approved",
+        startDate: "2023-07-01",
+        endDate: "2023-07-07",
+        submittedAt: "2023-05-20T14:15:00",
+        approvedBy: "Aaryan Patel",
+        approvedAt: "2023-05-21T10:00:00",
+        notes: "Annual family trip to Goa"
+      },
+      { 
+        id: 3, 
+        employeeId: 3,
+        email: "priya@hr.com", 
+        name: "Priya Gupta", 
+        reason: "Training workshop", 
+        status: "pending",
+        startDate: "2023-06-20",
+        endDate: "2023-06-22",
+        submittedAt: "2023-06-05T11:20:00",
+        notes: "HR certification training in Mumbai"
+      }
+    ];
+
+    // Sample attendance data
+    const attendanceData = [
+      { id: 1, employeeId: 1, date: "2023-06-01", status: "present", checkIn: "08:05", checkOut: "17:30" },
+      { id: 2, employeeId: 1, date: "2023-06-02", status: "present", checkIn: "08:10", checkOut: "17:45" },
+      { id: 3, employeeId: 1, date: "2023-06-03", status: "absent", reason: "Sick leave" },
+      { id: 4, employeeId: 1, date: "2023-06-04", status: "weekend" },
+      { id: 5, employeeId: 1, date: "2023-06-05", status: "present", checkIn: "08:00", checkOut: "17:30" },
+      { id: 6, employeeId: 2, date: "2023-06-01", status: "present", checkIn: "09:00", checkOut: "18:00" },
+      { id: 7, employeeId: 3, date: "2023-06-01", status: "present", checkIn: "08:30", checkOut: "17:30" }
+    ];
+
+    // Sample announcements
+    const announcements = [
+      {
+        id: 1,
+        title: "Office Closed on July 4th",
+        content: "The office will be closed on July 4th for Independence Day celebrations.",
+        date: "2023-06-01",
+        author: "Management"
+      },
+      {
+        id: 2,
+        title: "New Attendance Policy",
+        content: "Starting next month, all employees must check in using the new biometric system.",
+        date: "2023-05-28",
+        author: "HR Department"
+      }
+    ];
+
+    // DOM Elements
+    const loginContainer = document.getElementById("login-container");
+    const dashboard = document.getElementById("dashboard");
+    const loginForm = document.getElementById("login-form");
+    const loginMsg = document.getElementById("login-msg");
+    const sidebarMenu = document.getElementById("sidebar-menu");
+    const content = document.getElementById("content");
+    const userInfo = document.getElementById("user-info");
+    const logoutBtn = document.getElementById("logout-btn");
+    const sidebarToggle = document.getElementById("sidebar-toggle");
+    const sidebar = document.getElementById("sidebar");
+    const notificationBell = document.getElementById("notification-bell");
+    const notificationCount = document.getElementById("notification-count");
+    const notificationsDropdown = document.getElementById("notifications-dropdown");
+    const darkModeToggle = document.getElementById("dark-mode-toggle");
+
+    // Current user
+    let currentUser = null;
+    let checkInTime = null;
+    let attendanceTimer = null;
+
+    // Initialize the app
+    document.addEventListener("DOMContentLoaded", () => {
+      // Check if user is already logged in (from session storage)
+      const storedUser = sessionStorage.getItem("currentUser");
+      if (storedUser) {
+        currentUser = JSON.parse(storedUser);
+        showDashboard();
+      }
+
+      // Check if dark mode preference exists
+      const darkMode = localStorage.getItem("darkMode") === "true";
+      if (darkMode) {
+        document.body.classList.add("dark-mode");
+        darkModeToggle.checked = true;
+      }
+
+      // Login form submission
+      loginForm.addEventListener("submit", handleLogin);
+
+      // Logout button
+      logoutBtn.addEventListener("click", handleLogout);
+
+      // Sidebar toggle for mobile
+      sidebarToggle.addEventListener("click", toggleSidebar);
+
+      // Close sidebar when clicking outside on mobile
+      document.addEventListener("click", (e) => {
+        if (window.innerWidth <= 992 && 
+            !sidebar.contains(e.target) && 
+            !sidebarToggle.contains(e.target) && 
+            sidebar.classList.contains("active")) {
+          toggleSidebar();
+        }
+      });
+
+      // Notification bell click handler
+      notificationBell.addEventListener("click", toggleNotifications);
+
+      // Dark mode toggle handler
+      darkModeToggle.addEventListener("change", toggleDarkMode);
+    });
+
+    // Toggle dark mode
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+      localStorage.setItem("darkMode", darkModeToggle.checked);
+    }
+
+    // Toggle notifications dropdown
+    function toggleNotifications(e) {
+      e.stopPropagation();
+      notificationsDropdown.style.display = notificationsDropdown.style.display === "block" ? "none" : "block";
+      
+      // Mark notifications as read when dropdown is opened
+      if (notificationsDropdown.style.display === "block" && currentUser) {
+        currentUser.notifications.forEach(notification => {
+          notification.read = true;
+        });
+        updateNotificationCount();
+      }
+    }
+
+    // Close notifications when clicking elsewhere
+    document.addEventListener("click", () => {
+      notificationsDropdown.style.display = "none";
+    });
+
+    // Update notification count
+    function updateNotificationCount() {
+      if (!currentUser) return;
+      
+      const unreadCount = currentUser.notifications.filter(n => !n.read).length;
+      notificationCount.textContent = unreadCount;
+      notificationCount.style.display = unreadCount > 0 ? "block" : "none";
+      
+      // Update dropdown content
+      renderNotifications();
+    }
+
+    // Render notifications dropdown
+    function renderNotifications() {
+      if (!currentUser) return;
+      
+      notificationsDropdown.innerHTML = currentUser.notifications.length > 0 
+        ? currentUser.notifications.map(notification => `
+            <div class="notification-item ${notification.read ? '' : 'unread'}" data-id="${notification.id}">
+              <div style="font-weight: 600;">${notification.title}</div>
+              <div style="font-size: 13px; color: #666;">${notification.message}</div>
+              <div style="font-size: 11px; color: #999; margin-top: 5px;">
+                ${formatDateTime(notification.timestamp)}
+              </div>
+            </div>
+          `).join('')
+        : `<div style="padding: 15px; text-align: center; color: #666;">No notifications</div>`;
+    }
+
+    // Format date/time for display
+    function formatDateTime(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+
+    // Login handler
+    function handleLogin(e) {
+      e.preventDefault();
+      loginMsg.textContent = "";
+      loginMsg.style.display = "none";
+
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      const password = document.getElementById("password").value.trim();
+      const rememberMe = document.getElementById("remember-me").checked;
+
+      // Simulate password hashing in a real app this would be done server-side
+      const hashedPassword = "hashed_" + password;
+
+      const user = users.find(u => u.email.toLowerCase() === email && u.password === hashedPassword);
+
+      if (user) {
+        currentUser = user;
+        loginMsg.className = "message success-msg";
+        loginMsg.textContent = "Login successful! Redirecting...";
+        loginMsg.style.display = "block";
+
+        // Store user in session storage
+        if (rememberMe) {
+          localStorage.setItem("currentUser", JSON.stringify(user));
+        } else {
+          sessionStorage.setItem("currentUser", JSON.stringify(user));
+        }
+
+        // Show loading animation
+        loginForm.querySelector("button").innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+
+        setTimeout(() => {
+          showDashboard();
+        }, 1000);
+      } else {
+        loginMsg.className = "message error-msg";
+        loginMsg.textContent = "Invalid email or password";
+        loginMsg.style.display = "block";
+      }
+    }
+
+    // Logout handler
+    function handleLogout() {
+      // Clear check-in timer if active
+      if (attendanceTimer) {
+        clearInterval(attendanceTimer);
+      }
+      
+      sessionStorage.removeItem("currentUser");
+      localStorage.removeItem("currentUser");
+      currentUser = null;
+      dashboard.style.display = "none";
+      loginContainer.style.display = "flex";
+      document.getElementById("email").value = "";
+      document.getElementById("password").value = "";
+      loginForm.querySelector("button").innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+    }
+
+    // Show dashboard
+    function showDashboard() {
+      loginContainer.style.display = "none";
+      dashboard.style.display = "flex";
+      setupDashboard();
+      loadDefaultContent();
+      updateNotificationCount();
+    }
+
+    // Setup dashboard based on user role
+    function setupDashboard() {
+      // Set user info in topbar
+      userInfo.innerHTML = `
+        <div class="user-avatar">${currentUser.avatar}</div>
+        <div>
+          <div style="font-weight: 600;">${currentUser.name}</div>
+          <div style="font-size: 12px; color: #666;">${currentUser.department}</div>
+        </div>
+      `;
+
+      // Clear sidebar menu
+      sidebarMenu.innerHTML = "";
+
+      // Common menu items
+      const commonMenuItems = [
+        { 
+          icon: "fa-calendar-check", 
+          text: "Attendance", 
+          action: () => loadAttendanceView(),
+          roles: ["employee", "manager", "hr"]
+        },
+        { 
+          icon: "fa-calendar-alt", 
+          text: "Leave Requests", 
+          action: () => loadLeaveRequests(),
+          roles: ["employee", "manager", "hr"]
+        },
+        { 
+          icon: "fa-bullhorn", 
+          text: "Announcements", 
+          action: () => loadAnnouncements(),
+          roles: ["employee", "manager", "hr"]
+        }
+      ];
+
+      // Role-specific menu items
+      const employeeMenuItems = [
+        { 
+          icon: "fa-plus-circle", 
+          text: "Request Leave", 
+          action: () => loadLeaveRequestForm(),
+          roles: ["employee"]
+        },
+        { 
+          icon: "fa-calendar-day", 
+          text: "My Schedule", 
+          action: () => loadEmployeeSchedule(),
+          roles: ["employee"]
+        },
+        { 
+          icon: "fa-user-clock", 
+          text: "Check In/Out", 
+          action: () => loadAttendanceCheckIn(),
+          roles: ["employee"]
+        }
+      ];
+
+      const managerMenuItems = [
+        { 
+          icon: "fa-tasks", 
+          text: "Approve Requests", 
+          action: () => loadApprovalQueue(),
+          roles: ["manager", "hr"]
+        },
+        { 
+          icon: "fa-chart-bar", 
+          text: "Reports", 
+          action: () => loadReports(),
+          roles: ["manager", "hr"]
+        },
+        { 
+          icon: "fa-users", 
+          text: "Team Management", 
+          action: () => loadTeamManagement(),
+          roles: ["manager", "hr"]
+        }
+      ];
+
+      // Combine all menu items
+      const allMenuItems = [...commonMenuItems, ...employeeMenuItems, ...managerMenuItems];
+
+      // Add menu items based on user role
+      allMenuItems.forEach(item => {
+        if (item.roles.includes(currentUser.role)) {
+          const menuItem = document.createElement("a");
+          menuItem.className = "menu-item";
+          menuItem.href = "#";
+          menuItem.innerHTML = `
+            <i class="fas ${item.icon}"></i>
+            <span>${item.text}</span>
+          `;
+          menuItem.addEventListener("click", (e) => {
+            e.preventDefault();
+            // Remove active class from all items
+            document.querySelectorAll(".menu-item").forEach(el => el.classList.remove("active"));
+            // Add active class to clicked item
+            menuItem.classList.add("active");
+            // Load content
+            item.action();
+          });
+          sidebarMenu.appendChild(menuItem);
+        }
+      });
+
+      // Highlight first menu item
+      if (sidebarMenu.firstChild) {
+        sidebarMenu.firstChild.classList.add("active");
+      }
+    }
+
+    // Load default content based on user role
+    function loadDefaultContent() {
+      if (currentUser.role === "employee") {
+        loadAttendanceView();
+      } else if (currentUser.role === "manager" || currentUser.role === "hr") {
+        loadApprovalQueue();
+      }
+    }
+
+    // Toggle sidebar on mobile
+    function toggleSidebar() {
+      sidebar.classList.toggle("active");
+    }
+
+    // Load attendance view
+    function loadAttendanceView() {
+      content.innerHTML = `
+        <div class="page-header">
+          <h2>My Attendance</h2>
+          <div>
+            <select id="attendance-month" class="form-control" style="width: auto; display: inline-block;">
+              <option value="2023-06">June 2023</option>
+              <option value="2023-05">May 2023</option>
+              <option value="2023-04">April 2023</option>
+            </select>
+          </div>
+        </div>
+        <div class="card">
+          <div id="attendance-stats" style="display: flex; justify-content: space-around; text-align: center; margin-bottom: 20px;">
+            <div>
+              <div style="font-size: 12px; color: #666;">Days Present</div>
+              <div style="font-size: 24px; font-weight: 600; color: var(--success);">18</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #666;">Days Absent</div>
+              <div style="font-size: 24px; font-weight: 600; color: var(--danger);">2</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #666;">Late Arrivals</div>
+              <div style="font-size: 24px; font-weight: 600; color: var(--warning);">3</div>
+            </div>
+          </div>
+          <div id="attendance-calendar">
+            <!-- Calendar will be generated here -->
+          </div>
+        </div>
+      `;
+
+      // Generate simple attendance calendar (in a real app, use a proper library)
+      generateAttendanceCalendar();
+      
+      // Add month change handler
+      document.getElementById("attendance-month").addEventListener("change", generateAttendanceCalendar);
+    }
+
+    // Generate attendance calendar
+    function generateAttendanceCalendar() {
+      const calendarEl = document.getElementById("attendance-calendar");
+      const daysInMonth = 30; // June has 30 days
+      const startDay = 4; // June 1, 2023 is Thursday (0=Sun, 1=Mon, ..., 6=Sat)
+      
+      // Create calendar header
+      let calendarHTML = `
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 10px;">
+          <div style="text-align: center; font-weight: 600; padding: 5px;">Sun</div>
+          <div style="text-align: center; font-weight: 600; padding: 5px;">Mon</div>
+          <div style="text-align: center; font-weight: 600; padding: 5px;">Tue</div>
+          <div style="text-align: center; font-weight: 600; padding: 5px;">Wed</div>
+          <div style="text-align: center; font-weight: 600; padding: 5px;">Thu</div>
+          <div style="text-align: center; font-weight: 600; padding: 5px;">Fri</div>
+          <div style="text-align: center; font-weight: 600; padding: 5px;">Sat</div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;">
+      `;
+
+      // Add empty cells for days before the 1st of the month
+      for (let i = 0; i < startDay; i++) {
+        calendarHTML += `<div style="height: 40px;"></div>`;
+      }
+
+      // Add cells for each day of the month
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = `2023-06-${day.toString().padStart(2, '0')}`;
+        const attendance = attendanceData.find(a => a.employeeId === currentUser.id && a.date === date);
+        
+        let statusClass = "";
+        let statusText = "";
+        let tooltip = "";
+
+        if (attendance) {
+          if (attendance.status === "present") {
+            statusClass = "background-color: #e8f8f0; color: var(--success);";
+            statusText = "P";
+            tooltip = `Present: ${attendance.checkIn} - ${attendance.checkOut}`;
+          } else if (attendance.status === "absent") {
+            statusClass = "background-color: #fdecea; color: var(--danger);";
+            statusText = "A";
+            tooltip = `Absent: ${attendance.reason || "No reason provided"}`;
+          } else if (attendance.status === "weekend") {
+            statusClass = "background-color: #f5f6fa; color: #999;";
+            statusText = "W";
+            tooltip = "Weekend";
+          }
+        } else {
+          // Future dates or no data
+          statusClass = "background-color: #fff; border: 1px solid #eee;";
+          statusText = day;
+        }
+
+        calendarHTML += `
+          <div style="height: 40px; display: flex; align-items: center; justify-content: center; 
+                      border-radius: 4px; font-weight: 600; cursor: default; position: relative;
+                      ${statusClass}"
+              title="${tooltip}">
+            ${statusText}
+          </div>
+        `;
+      }
+
+      calendarHTML += `</div>`;
+      calendarEl.innerHTML = calendarHTML;
+    }
+
+    // Load attendance check-in/out view
+    function loadAttendanceCheckIn() {
+      const today = new Date().toISOString().split('T')[0];
+      const todayAttendance = attendanceData.find(a => 
+        a.employeeId === currentUser.id && a.date === today
+      );
+      
+      const isCheckedIn = todayAttendance && todayAttendance.checkIn;
+      const isCheckedOut = todayAttendance && todayAttendance.checkOut;
+      
+      content.innerHTML = `
+        <div class="page-header">
+          <h2>Attendance Check-In</h2>
+        </div>
+        <div class="card">
+          <div class="attendance-status">
+            <h2>${isCheckedIn ? (isCheckedOut ? 'Already Checked Out' : 'Currently Checked In') : 'Not Checked In Yet'}</h2>
+            
+            ${!isCheckedIn ? `
+              <button class="btn btn-primary attendance-btn" id="check-in-btn">
+                <i class="fas fa-sign-in-alt"></i> Check In
+              </button>
+            ` : !isCheckedOut ? `
+              <div class="attendance-timer" id="attendance-timer">00:00:00</div>
+              <button class="btn btn-danger attendance-btn" id="check-out-btn">
+                <i class="fas fa-sign-out-alt"></i> Check Out
+              </button>
+            ` : `
+              <div style="margin: 20px 0;">
+                <div style="margin-bottom: 10px;">
+                  <strong>Check In:</strong> ${todayAttendance.checkIn}
+                </div>
+                <div>
+                  <strong>Check Out:</strong> ${todayAttendance.checkOut}
+                </div>
+              </div>
+              <div class="alert alert-info">
+                You have completed your attendance for today.
+              </div>
+            `}
+            
+            <div style="margin-top: 30px; text-align: left;">
+              <h4>Today's Schedule</h4>
+              <p>${currentUser.schedule}</p>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Set up check-in button
+      if (!isCheckedIn) {
+        document.getElementById("check-in-btn").addEventListener("click", handleCheckIn);
+      } 
+      // Set up check-out button and timer if checked in but not out
+      else if (!isCheckedOut) {
+        document.getElementById("check-out-btn").addEventListener("click", handleCheckOut);
+        
+        // Start timer (in a real app, this would use the actual check-in time from the server)
+        checkInTime = new Date();
+        updateAttendanceTimer();
+        attendanceTimer = setInterval(updateAttendanceTimer, 1000);
+      }
+    }
+    
+    // Handle check-in
+    function handleCheckIn() {
+      const now = new Date();
+      const timeString = now.toTimeString().substring(0, 5);
+      const today = now.toISOString().split('T')[0];
+      
+      // In a real app, this would be sent to the server
+      attendanceData.push({
+        id: attendanceData.length + 1,
+        employeeId: currentUser.id,
+        date: today,
+        status: "present",
+        checkIn: timeString
+      });
+      
+      // Show success message
+      content.innerHTML = `
+        <div class="card">
+          <div style="text-align: center; padding: 30px;">
+            <div style="font-size: 48px; color: var(--success); margin-bottom: 20px;">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>Checked In Successfully</h3>
+            <p>You checked in at ${timeString}</p>
+            <button class="btn btn-primary mt-3" id="back-to-attendance">
+              <i class="fas fa-arrow-left"></i> Back to Attendance
+            </button>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById("back-to-attendance").addEventListener("click", loadAttendanceCheckIn);
+      
+      // Start timer
+      checkInTime = now;
+      updateAttendanceTimer();
+      attendanceTimer = setInterval(updateAttendanceTimer, 1000);
+    }
+    
+    // Handle check-out
+    function handleCheckOut() {
+      if (attendanceTimer) {
+        clearInterval(attendanceTimer);
+      }
+      
+      const now = new Date();
+      const timeString = now.toTimeString().substring(0, 5);
+      const today = now.toISOString().split('T')[0];
+      
+      // In a real app, this would be sent to the server
+      const todayAttendance = attendanceData.find(a => 
+        a.employeeId === currentUser.id && a.date === today
+      );
+      if (todayAttendance) {
+        todayAttendance.checkOut = timeString;
+      }
+      
+      // Show success message
+      content.innerHTML = `
+        <div class="card">
+          <div style="text-align: center; padding: 30px;">
+            <div style="font-size: 48px; color: var(--success); margin-bottom: 20px;">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>Checked Out Successfully</h3>
+            <p>You checked out at ${timeString}</p>
+            <div style="margin: 20px 0;">
+              <div style="margin-bottom: 10px;">
+                <strong>Total Time:</strong> ${formatTimeDifference(checkInTime, now)}
+              </div>
+            </div>
+            <button class="btn btn-primary mt-3" id="back-to-attendance">
+              <i class="fas fa-arrow-left"></i> Back to Attendance
+            </button>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById("back-to-attendance").addEventListener("click", loadAttendanceCheckIn);
+    }
+    
+    // Update attendance timer display
+    function updateAttendanceTimer() {
+      if (!checkInTime) return;
+      
+      const now = new Date();
+      const timerElement = document.getElementById("attendance-timer");
+      if (timerElement) {
+        timerElement.textContent = formatTimeDifference(checkInTime, now);
+      }
+    }
+    
+    // Format time difference as HH:MM:SS
+    function formatTimeDifference(start, end) {
+      const diff = end - start;
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // Load leave request form
+    function loadLeaveRequestForm() {
+      if (currentUser.role !== "employee") {
+        content.innerHTML = `
+          <div class="card">
+            <h3>Access Denied</h3>
+            <p>Only employees can submit leave requests.</p>
+          </div>
+        `;
+        return;
+      }
+
+      content.innerHTML = `
+        <div class="page-header">
+          <h2>Request Leave</h2>
+        </div>
+        <div class="card">
+          <form id="leave-request-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="leave-name">Name</label>
+                <input type="text" id="leave-name" class="form-control" value="${currentUser.name}" readonly>
+              </div>
+              <div class="form-group">
+                <label for="leave-email">Email</label>
+                <input type="email" id="leave-email" class="form-control" value="${currentUser.email}" readonly>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="leave-type">Leave Type</label>
+                <select id="leave-type" class="form-control" required>
+                  <option value="">Select leave type</option>
+                  <option value="vacation">Vacation</option>
+                  <option value="sick">Sick Leave</option>
+                  <option value="personal">Personal</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="leave-department">Department</label>
+                <input type="text" id="leave-department" class="form-control" value="${currentUser.department}" readonly>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="leave-start">Start Date</label>
+                <input type="date" id="leave-start" class="form-control" required min="${new Date().toISOString().split('T')[0]}">
+              </div>
+              <div class="form-group">
+                <label for="leave-end">End Date</label>
+                <input type="date" id="leave-end" class="form-control" required>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="leave-reason">Reason</label>
+              <textarea id="leave-reason" class="form-control" required placeholder="Please explain the reason for your leave"></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label for="leave-notes">Additional Notes (Optional)</label>
+              <textarea id="leave-notes" class="form-control" placeholder="Any additional information"></textarea>
+            </div>
+            
+            <div class="form-group" style="text-align: right;">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i> Submit Request
+              </button>
+            </div>
+          </form>
+        </div>
+      `;
+
+      // Add form validation
+      const form = document.getElementById("leave-request-form");
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        
+        const startDate = document.getElementById("leave-start").value;
+        const endDate = document.getElementById("leave-end").value;
+        const reason = document.getElementById("leave-reason").value.trim();
+        
+        if (!startDate || !endDate || !reason) {
+          alert("Please fill all required fields");
+          return;
+        }
+        
+        if (endDate < startDate) {
+          alert("End date must be after start date");
+          return;
+        }
+        
+        // Create new leave request
+        const newRequest = {
+          id: leaveRequests.length + 1,
+          employeeId: currentUser.id,
+          email: currentUser.email,
+          name: currentUser.name,
+          reason: document.getElementById("leave-type").value + ": " + reason,
+          status: "pending",
+          startDate: startDate,
+          endDate: endDate,
+          submittedAt: new Date().toISOString(),
+          notes: document.getElementById("leave-notes").value.trim()
+        };
+        
+        leaveRequests.push(newRequest);
+        
+        // Show success message
+        content.innerHTML = `
+          <div class="card">
+            <div style="text-align: center; padding: 30px;">
+              <div style="font-size: 48px; color: var(--success); margin-bottom: 20px;">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <h3>Leave Request Submitted</h3>
+              <p>Your leave request has been submitted for approval.</p>
+              <p>Request ID: #${newRequest.id}</p>
+              <button class="btn btn-primary mt-3" id="back-to-dashboard">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+              </button>
+            </div>
+          </div>
+        `;
+        
+        document.getElementById("back-to-dashboard").addEventListener("click", loadDefaultContent);
+      });
+    }
+
+    // Load leave requests
+    function loadLeaveRequests() {
+      let requestsToShow = [];
+      
+      if (currentUser.role === "employee") {
+        requestsToShow = leaveRequests.filter(req => req.employeeId === currentUser.id);
+      } else {
+        requestsToShow = leaveRequests;
+      }
+      
+      if (requestsToShow.length === 0) {
+        content.innerHTML = `
+          <div class="card">
+            <h3>No Leave Requests Found</h3>
+            <p>There are no leave requests to display.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      content.innerHTML = `
+        <div class="page-header">
+          <h2>Leave Requests</h2>
+          ${currentUser.role === "employee" ? `
+            <button class="btn btn-primary" id="new-request-btn">
+              <i class="fas fa-plus"></i> New Request
+            </button>
+          ` : ''}
+        </div>
+        <div id="leave-requests-list">
+          ${requestsToShow.map(request => renderLeaveRequestCard(request)).join('')}
+        </div>
+      `;
+      
+      if (currentUser.role === "employee") {
+        document.getElementById("new-request-btn").addEventListener("click", loadLeaveRequestForm);
+      }
+    }
+
+    // Render leave request card
+    function renderLeaveRequestCard(request) {
+      let statusBadge = "";
+      if (request.status === "pending") {
+        statusBadge = `<span class="badge badge-pending">Pending</span>`;
+      } else if (request.status === "approved") {
+        statusBadge = `<span class="badge badge-approved">Approved</span>`;
+      } else if (request.status === "rejected") {
+        statusBadge = `<span class="badge badge-rejected">Rejected</span>`;
+      }
+      
+      return `
+        <div class="leave-card ${request.status}">
+          <h3>${request.name} ${statusBadge}</h3>
+          <div class="leave-meta">
+            <div><i class="fas fa-calendar-alt"></i> ${request.startDate} to ${request.endDate}</div>
+            <div><i class="fas fa-info-circle"></i> ${request.reason.split(':')[0]}</div>
+          </div>
+          <p>${request.reason.split(':')[1]?.trim() || 'No details provided'}</p>
+          
+          ${currentUser.role !== "employee" && request.status === "pending" ? `
+            <div class="leave-actions">
+              <button class="btn btn-primary btn-sm approve-btn" data-id="${request.id}">
+                <i class="fas fa-check"></i> Approve
+              </button>
+              <button class="btn btn-secondary btn-sm reject-btn" data-id="${request.id}">
+                <i class="fas fa-times"></i> Reject
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    // Load approval queue for managers/HR
+    function loadApprovalQueue() {
+      if (currentUser.role === "employee") {
+        content.innerHTML = `
+          <div class="card">
+            <h3>Access Denied</h3>
+            <p>Only managers and HR can access this page.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const pendingRequests = leaveRequests.filter(req => req.status === "pending");
+      
+      if (pendingRequests.length === 0) {
+        content.innerHTML = `
+          <div class="card">
+            <h3>No Pending Approvals</h3>
+            <p>There are no leave requests pending approval.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      content.innerHTML = `
+        <div class="page-header">
+          <h2>Pending Approvals</h2>
+          <div>
+            <select id="filter-department" class="form-control" style="width: auto; display: inline-block;">
+              <option value="">All Departments</option>
+              <option value="Cashier">Cashier</option>
+              <option value="Human Resources">HR</option>
+              <option value="Management">Management</option>
+            </select>
+          </div>
+        </div>
+        <div id="approval-queue">
+          ${pendingRequests.map(request => renderLeaveRequestCard(request)).join('')}
+        </div>
+      `;
+      
+      // Add approval/reject handlers
+      document.querySelectorAll(".approve-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const requestId = parseInt(btn.getAttribute("data-id"));
+          approveLeaveRequest(requestId);
+        });
+      });
+      
+      document.querySelectorAll(".reject-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const requestId = parseInt(btn.getAttribute("data-id"));
+          rejectLeaveRequest(requestId);
+        });
+      });
+      
+      // Add department filter
+      document.getElementById("filter-department").addEventListener("change", (e) => {
+        const department = e.target.value;
+        if (!department) {
+          document.querySelectorAll(".leave-card").forEach(card => card.style.display = "block");
+        } else {
+          // In a real app, we would filter based on employee department
+          // For now, just show all cards
+          document.querySelectorAll(".leave-card").forEach(card => card.style.display = "block");
+        }
+      });
+    }
+
+    // Approve leave request
+    function approveLeaveRequest(requestId) {
+      const request = leaveRequests.find(req => req.id === requestId);
+      if (request) {
+        request.status = "approved";
+        request.approvedBy = currentUser.name;
+        request.approvedAt = new Date().toISOString();
+        
+        // In a real app, you would send this to the server
+        loadApprovalQueue();
+        
+        // Add notification to employee
+        const employee = users.find(u => u.id === request.employeeId);
+        if (employee) {
+          employee.notifications.unshift({
+            id: Date.now(),
+            title: "Leave Approved",
+            message: `Your leave request for ${request.startDate} to ${request.endDate} has been approved`,
+            timestamp: new Date().toISOString(),
+            read: false
+          });
+        }
+      }
+    }
+
+    // Reject leave request
+    function rejectLeaveRequest(requestId) {
+      const request = leaveRequests.find(req => req.id === requestId);
+      if (request) {
+        request.status = "rejected";
+        request.approvedBy = currentUser.name;
+        request.approvedAt = new Date().toISOString();
+        
+        // In a real app, you would send this to the server
+        loadApprovalQueue();
+        
+        // Add notification to employee
+        const employee = users.find(u => u.id === request.employeeId);
+        if (employee) {
+          employee.notifications.unshift({
+            id: Date.now(),
+            title: "Leave Rejected",
+            message: `Your leave request for ${request.startDate} to ${request.endDate} has been rejected`,
+            timestamp: new Date().toISOString(),
+            read: false
+          });
+        }
+      }
+    }
+
+    // Load employee schedule
+    function loadEmployeeSchedule() {
+      content.innerHTML = `
+        <div class="page-header">
+          <h2>My Schedule</h2>
+        </div>
+        <div class="card">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color: var(--dark); color: white;">
+                <th style="padding: 12px; text-align: left;">Date</th>
+                <th style="padding: 12px; text-align: left;">Day</th>
+                <th style="padding: 12px; text-align: left;">Shift</th>
+                <th style="padding: 12px; text-align: left;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 12px;">2023-06-01</td>
+                <td style="padding: 12px;">Thursday</td>
+                <td style="padding: 12px;">Morning (8AM-5PM)</td>
+                <td style="padding: 12px;"><span class="badge badge-approved">Completed</span></td>
+              </tr>
+              <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 12px;">2023-06-02</td>
+                <td style="padding: 12px;">Friday</td>
+                <td style="padding: 12px;">Morning (8AM-5PM)</td>
+                <td style="padding: 12px;"><span class="badge badge-approved">Completed</span></td>
+              </tr>
+              <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 12px;">2023-06-05</td>
+                <td style="padding: 12px;">Monday</td>
+                <td style="padding: 12px;">Morning (8AM-5PM)</td>
+                <td style="padding: 12px;"><span class="badge badge-approved">Completed</span></td>
+              </tr>
+              <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 12px;">2023-06-06</td>
+                <td style="padding: 12px;">Tuesday</td>
+                <td style="padding: 12px;">Morning (8AM-5PM)</td>
+                <td style="padding: 12px;"><span class="badge badge-pending">Scheduled</span></td>
+              </tr>
+              <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 12px;">2023-06-07</td>
+                <td style="padding: 12px;">Wednesday</td>
+                <td style="padding: 12px;">Morning (8AM-5PM)</td>
+                <td style="padding: 12px;"><span class="badge badge-pending">Scheduled</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // Load team management view
+    function loadTeamManagement() {
+      if (currentUser.role === "employee") {
+        content.innerHTML = `
+          <div class="card">
+            <h3>Access Denied</h3>
+            <p>Only managers and HR can access this page.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const teamMembers = users.filter(u => u.role === "employee");
+      
+      content.innerHTML = `
+        <div class="page-header">
+          <h2>Team Management</h2>
+          <button class="btn btn-primary" id="add-employee-btn">
+            <i class="fas fa-user-plus"></i> Add Employee
+          </button>
+        </div>
+        <div class="card">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color: var(--dark); color: white;">
+                <th style="padding: 12px; text-align: left;">Name</th>
+                <th style="padding: 12px; text-align: left;">Department</th>
+                <th style="padding: 12px; text-align: left;">Schedule</th>
+                <th style="padding: 12px; text-align: left;">Status</th>
+                <th style="padding: 12px; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${teamMembers.map(member => `
+                <tr style="border-bottom: 1px solid #eee;">
+                  <td style="padding: 12px;">${member.name}</td>
+                  <td style="padding: 12px;">${member.department}</td>
+                  <td style="padding: 12px;">${member.schedule}</td>
+                  <td style="padding: 12px;"><span class="badge badge-approved">Active</span></td>
+                  <td style="padding: 12px; text-align: right;">
+                    <button class="btn btn-secondary btn-sm" data-id="${member.id}">
+                      <i class="fas fa-edit"></i> Edit
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // Load announcements
+    function loadAnnouncements() {
+      content.innerHTML = `
+        <div class="page-header">
+          <h2>Announcements</h2>
+          ${currentUser.role !== "employee" ? `
+            <button class="btn btn-primary" id="new-announcement-btn">
+              <i class="fas fa-plus"></i> New Announcement
+            </button>
+          ` : ''}
+        </div>
+        <div id="announcements-list">
+          ${announcements.map(announcement => `
+            <div class="card" style="margin-bottom: 15px;">
+              <h3>${announcement.title}</h3>
+              <div style="display: flex; gap: 15px; margin-bottom: 10px; font-size: 14px; color: #666;">
+                <div><i class="fas fa-user"></i> ${announcement.author}</div>
+                <div><i class="fas fa-calendar-alt"></i> ${announcement.date}</div>
+              </div>
+              <p>${announcement.content}</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      
+      if (currentUser.role !== "employee") {
+        document.getElementById("new-announcement-btn").addEventListener("click", () => {
+          content.innerHTML = `
+            <div class="page-header">
+              <h2>New Announcement</h2>
+            </div>
+            <div class="card">
+              <form id="announcement-form">
+                <div class="form-group">
+                  <label for="announcement-title">Title</label>
+                  <input type="text" id="announcement-title" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="announcement-content">Content</label>
+                  <textarea id="announcement-content" class="form-control" required rows="5"></textarea>
+                </div>
+                
+                <div class="form-group" style="text-align: right;">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> Publish Announcement
+                  </button>
+                </div>
+              </form>
+            </div>
+          `;
+          
+          document.getElementById("announcement-form").addEventListener("submit", (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById("announcement-title").value.trim();
+            const content = document.getElementById("announcement-content").value.trim();
+            
+            if (!title || !content) {
+              alert("Please fill all fields");
+              return;
+            }
+            
+            // Add new announcement
+            announcements.unshift({
+              id: announcements.length + 1,
+              title: title,
+              content: content,
+              date: new Date().toISOString().split('T')[0],
+              author: currentUser.name
+            });
+            
+            // Show success message
+            content.innerHTML = `
+              <div class="card">
+                <div style="text-align: center; padding: 30px;">
+                  <div style="font-size: 48px; color: var(--success); margin-bottom: 20px;">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
+                  <h3>Announcement Published</h3>
+                  <p>Your announcement has been published to all employees.</p>
+                  <button class="btn btn-primary mt-3" id="back-to-announcements">
+                    <i class="fas fa-arrow-left"></i> Back to Announcements
+                  </button>
+                </div>
+              </div>
+            `;
+            
+            document.getElementById("back-to-announcements").addEventListener("click", loadAnnouncements);
+          });
+        });
+      }
+    }
+
+    // Load reports (for managers/HR)
+    function loadReports() {
+      if (currentUser.role === "employee") {
+        content.innerHTML = `
+          <div class="card">
+            <h3>Access Denied</h3>
+            <p>Only managers and HR can access this page.</p>
+          </div>
+        `;
+        return;
+      }
+
+      content.innerHTML = `
+        <div class="page-header">
+          <h2>Attendance Reports</h2>
+          <div>
+            <select id="report-type" class="form-control" style="width: auto; display: inline-block;">
+              <option value="monthly">Monthly Summary</option>
+              <option value="employee">By Employee</option>
+              <option value="department">By Department</option>
+            </select>
+          </div>
+        </div>
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <div>
+              <label for="report-month">Month</label>
+              <select id="report-month" class="form-control">
+                <option value="2023-06">June 2023</option>
+                <option value="2023-05">May 2023</option>
+                <option value="2023-04">April 2023</option>
+              </select>
+            </div>
+            <div style="align-self: flex-end;">
+              <button class="btn btn-primary" id="export-report-btn">
+                <i class="fas fa-download"></i> Export Report
+              </button>
+            </div>
+          </div>
+          
+          <div id="report-content">
+            <div style="text-align: center; padding: 30px; color: #666;">
+              <i class="fas fa-chart-pie" style="font-size: 48px; margin-bottom: 15px;"></i>
+              <h3>Attendance Overview</h3>
+              <p>Select report parameters to generate statistics</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Add report generation handler
+      document.getElementById("report-type").addEventListener("change", generateReport);
+      document.getElementById("report-month").addEventListener("change", generateReport);
+      document.getElementById("export-report-btn").addEventListener("click", exportReport);
+      
+      // Generate initial report
+      generateReport();
+    }
+
+    // Generate report
+    function generateReport() {
+      const reportType = document.getElementById("report-type").value;
+      const reportMonth = document.getElementById("report-month").value;
+      
+      // In a real app, this would fetch data from the server
+      // For demo, we'll just show some sample data
+      let reportHTML = "";
+      
+      if (reportType === "monthly") {
+        reportHTML = `
+          <h3 style="margin-bottom: 20px;">Monthly Summary - ${reportMonth}</h3>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
+            <div style="background: #f5f6fa; padding: 15px; border-radius: 8px; text-align: center;">
+              <div style="font-size: 12px; color: #666;">Total Employees</div>
+              <div style="font-size: 24px; font-weight: 600;">42</div>
+            </div>
+            <div style="background: #f5f6fa; padding: 15px; border-radius: 8px; text-align: center;">
+              <div style="font-size: 12px; color: #666;">Average Attendance</div>
+              <div style="font-size: 24px; font-weight: 600;">92%</div>
+            </div>
+            <div style="background: #f5f6fa; padding: 15px; border-radius: 8px; text-align: center;">
+              <div style="font-size: 12px; color: #666;">Total Leave Days</div>
+              <div style="font-size: 24px; font-weight: 600;">18</div>
+            </div>
+          </div>
+          
+          <div style="background: #f5f6fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h4 style="margin-bottom: 15px;">Attendance Trend</h4>
+            <div style="height: 200px; display: flex; align-items: flex-end; gap: 10px;">
+              <div style="flex: 1; background: var(--success); height: 80%; border-radius: 4px;"></div>
+              <div style="flex: 1; background: var(--success); height: 85%; border-radius: 4px;"></div>
+              <div style="flex: 1; background: var(--success); height: 90%; border-radius: 4px;"></div>
+              <div style="flex: 1; background: var(--success); height: 82%; border-radius: 4px;"></div>
+              <div style="flex: 1; background: var(--warning); height: 65%; border-radius: 4px;"></div>
+              <div style="flex: 1; background: var(--danger); height: 45%; border-radius: 4px;"></div>
+              <div style="flex: 1; background: var(--success); height: 88%; border-radius: 4px;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px;">
+              <span>Mon</span>
+              <span>Tue</span>
+              <span>Wed</span>
+              <span>Thu</span>
+              <span>Fri</span>
+              <span>Sat</span>
+              <span>Sun</span>
+            </div>
+          </div>
+        `;
+      } else if (reportType === "employee") {
+        reportHTML = `
+          <h3 style="margin-bottom: 20px;">Employee Attendance - ${reportMonth}</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color: var(--dark); color: white;">
+                <th style="padding: 12px; text-align: left;">Employee</th>
+                <th style="padding: 12px; text-align: center;">Present</th>
+                <th style="padding: 12px; text-align: center;">Absent</th>
+                <th style="padding: 12px; text-align: center;">Late</th>
+                <th style="padding: 12px; text-align: center;">% Attendance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 12px;">Akash Sharma</td>
+                <td style="padding: 12px; text-align: center;">18</td>
+                <td style="padding: 12px; text-align: center;">2</td>
+                <td style="padding: 12px; text-align: center;">3</td>
+                <td style="padding: 12px; text-align: center;">90%</td>
+              </tr>
+              <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 12px;">Priya Gupta</td>
+                <td style="padding: 12px; text-align: center;">20</td>
+                <td style="padding: 12px; text-align: center;">0</td>
+                <td style="padding: 12px; text-align: center;">1</td>
+                <td style="padding: 12px; text-align: center;">100%</td>
+              </tr>
+              <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 12px;">Rahul Verma</td>
+                <td style="padding: 12px; text-align: center;">15</td>
+                <td style="padding: 12px; text-align: center;">5</td>
+                <td style="padding: 12px; text-align: center;">4</td>
+                <td style="padding: 12px; text-align: center;">75%</td>
+              </tr>
+            </tbody>
+          </table>
+        `;
+      } else if (reportType === "department") {
+        reportHTML = `
+          <h3 style="margin-bottom: 20px;">Department Attendance - ${reportMonth}</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+            <div style="background: #f5f6fa; padding: 15px; border-radius: 8px;">
+              <h4 style="margin-bottom: 15px;">Cashiers</h4>
+              <div style="margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Attendance Rate</span>
+                  <span>88%</span>
+                </div>
+                <div style="height: 6px; background: #ddd; border-radius: 3px; margin-top: 5px;">
+                  <div style="width: 88%; height: 100%; background: var(--success); border-radius: 3px;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Leave Days</span>
+                  <span>12</span>
+                </div>
+              </div>
+            </div>
+            
+            <div style="background: #f5f6fa; padding: 15px; border-radius: 8px;">
+              <h4 style="margin-bottom: 15px;">Stock Clerks</h4>
+              <div style="margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Attendance Rate</span>
+                  <span>92%</span>
+                </div>
+                <div style="height: 6px; background: #ddd; border-radius: 3px; margin-top: 5px;">
+                  <div style="width: 92%; height: 100%; background: var(--success); border-radius: 3px;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Leave Days</span>
+                  <span>8</span>
+                </div>
+              </div>
+            </div>
+            
+            <div style="background: #f5f6fa; padding: 15px; border-radius: 8px;">
+              <h4 style="margin-bottom: 15px;">Department Managers</h4>
+              <div style="margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Attendance Rate</span>
+                  <span>95%</span>
+                </div>
+                <div style="height: 6px; background: #ddd; border-radius: 3px; margin-top: 5px;">
+                  <div style="width: 95%; height: 100%; background: var(--success); border-radius: 3px;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Leave Days</span>
+                  <span>5</span>
+                </div>
+              </div>
+            </div>
+            
+            <div style="background: #f5f6fa; padding: 15px; border-radius: 8px;">
+              <h4 style="margin-bottom: 15px;">Human Resources</h4>
+              <div style="margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Attendance Rate</span>
+                  <span>98%</span>
+                </div>
+                <div style="height: 6px; background: #ddd; border-radius: 3px; margin-top: 5px;">
+                  <div style="width: 98%; height: 100%; background: var(--success); border-radius: 3px;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Leave Days</span>
+                  <span>2</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      
+      document.getElementById("report-content").innerHTML = reportHTML;
+    }
+    
+    // Export report (simulated)
+    function exportReport() {
+      alert("Report exported successfully! (This would download a CSV file in a real app)");
+    }
+  </script>
+</body>
+</html>
